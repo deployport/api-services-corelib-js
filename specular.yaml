@@ -1,0 +1,6 @@
+packages:
+  - origin: "file://./../api-services-core-lib//package.specular"
+    generate:
+      - language: js
+        client:
+          output: .
