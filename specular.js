@@ -6,7 +6,7 @@ export class SignedOperationV1 {
 }
 // ServiceSignatureV1 entity
 export class ServiceSignatureV1 {
-    ServiceName;
+    ServiceName = '';
 }
 const _pkg = new Metadata.Package('Deployport/CoreLib');
 export const AccessDeniedProblemMeta = new Metadata.Struct(_pkg, "AccessDeniedProblem");

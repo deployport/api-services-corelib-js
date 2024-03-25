@@ -1,6 +1,7 @@
 import { Sha256 } from '@aws-crypto/sha256-js';
 import { Runtime } from "@deployport/specular-runtime";
 import { SourceData } from "@aws-sdk/types";
+import { ServiceSignatureV1 } from '../specular.js';
 
 type Credentials = {
     keyID: string;
@@ -27,8 +28,8 @@ export async function ConfigureSignatureV1(submission: Runtime.Submission, confi
     console.log("Hello from ConfigureSignatureV1 in runtime/signer.ts!", submission)
     const annotations = submission.operation.resource.package.annotations;
     console.log("service annotations", annotations);
-    const ServiceSignatureV1 = annotations.find((a) => a.constructor.name === "ServiceSignatureV1");
-    if (!ServiceSignatureV1) {
+    const serviceSignatureV1 = annotations.find((a) => a instanceof ServiceSignatureV1);
+    if (!serviceSignatureV1) {
         return;
     }
     console.log("signing using config", config)
@@ -42,7 +43,7 @@ export async function ConfigureSignatureV1(submission: Runtime.Submission, confi
         console.warn("missing required configuration for signing", deployport);
         return;
     }
-    const { ServiceName: signingService } = ServiceSignatureV1;
+    const { ServiceName: signingService } = serviceSignatureV1;
     console.log("annotations", annotations, VendorCode, signingService);
     const { longDate, shortDate } = formatDate(new Date());
     const signingScope = buildSigningScope(VendorCode, region, signingService, shortDate);

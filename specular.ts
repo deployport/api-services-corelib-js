@@ -11,7 +11,7 @@ export class SignedOperationV1 {
 
 // ServiceSignatureV1 entity
 export class ServiceSignatureV1 {
-    public ServiceName: string;
+    public ServiceName: string = '';
 }
 
 const _pkg = new Metadata.Package(
