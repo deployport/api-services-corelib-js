@@ -1,5 +1,9 @@
 packages:
-  - origin: "file://./../api-services-core-lib//package.specular"
+  - origin: "file://./../api-services-corelib-go//package.specular"
+    version: 0.0.1
+    path:
+      workspace: deployport
+      project: corelib
     generate:
       - language: js
         client:

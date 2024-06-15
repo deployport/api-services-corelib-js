@@ -15,54 +15,57 @@ export class ServiceSignatureV1 {
 }
 
 const _pkg = new Metadata.Package(
-    'Deployport/CoreLib',
+    "deployport",
+    "corelib",
 );
 
 export const AccessDeniedProblemMeta = new Metadata.Struct(
-    _pkg, 
-    "AccessDeniedProblem", 
+    _pkg,
+    "AccessDeniedProblem",
 );
 new Metadata.Property(AccessDeniedProblemMeta, "message", {
-NonNullable: true,
-SubType: "builtin",
-Builtin: "string"
+    NonNullable: true,
+    SubType: "builtin",
+    Builtin: "string"
 });
 // AccessDeniedProblem entity
-export interface AccessDeniedProblemProperties
- {
+export interface AccessDeniedProblemProperties {
     // /**
-    // * Returns "Deployport/CoreLib:AccessDeniedProblem"
+    // * Returns "deployport/corelib.AccessDeniedProblem"
     // */
-    // fqtn: "Deployport/CoreLib:AccessDeniedProblem";
-    message : string;
-};
-export interface AccessDeniedProblem extends AccessDeniedProblemProperties, Runtime.StructInterface{};
-export class AccessDeniedProblem 
-    extends Error
-{}
+    // fqtn: "deployport/corelib.AccessDeniedProblem";
+    message: string
+}
+export class AccessDeniedProblem extends Error implements AccessDeniedProblemProperties, Runtime.StructInterface {
+    message: string = ''
+    get __structPath(): Metadata.StructPath {
+        return AccessDeniedProblemMeta.path
+    }
+}
 AccessDeniedProblemMeta.problemInstantiate = (msg: string) => new AccessDeniedProblem(msg);
 export const ForbiddenProblemMeta = new Metadata.Struct(
-    _pkg, 
-    "ForbiddenProblem", 
+    _pkg,
+    "ForbiddenProblem",
 );
 new Metadata.Property(ForbiddenProblemMeta, "message", {
-NonNullable: true,
-SubType: "builtin",
-Builtin: "string"
+    NonNullable: true,
+    SubType: "builtin",
+    Builtin: "string"
 });
 // ForbiddenProblem entity
-export interface ForbiddenProblemProperties
- {
+export interface ForbiddenProblemProperties {
     // /**
-    // * Returns "Deployport/CoreLib:ForbiddenProblem"
+    // * Returns "deployport/corelib.ForbiddenProblem"
     // */
-    // fqtn: "Deployport/CoreLib:ForbiddenProblem";
-    message : string;
-};
-export interface ForbiddenProblem extends ForbiddenProblemProperties, Runtime.StructInterface{};
-export class ForbiddenProblem 
-    extends Error
-{}
+    // fqtn: "deployport/corelib.ForbiddenProblem";
+    message: string
+}
+export class ForbiddenProblem extends Error implements ForbiddenProblemProperties, Runtime.StructInterface {
+    message: string = ''
+    get __structPath(): Metadata.StructPath {
+        return ForbiddenProblemMeta.path
+    }
+}
 ForbiddenProblemMeta.problemInstantiate = (msg: string) => new ForbiddenProblem(msg);
 
 export function SpecularPackage() {
