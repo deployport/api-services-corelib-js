@@ -1,14 +1,24 @@
 {
     "name": "@deployport/api-services-corelib",
-    "version": "0.1.4",
+    "version": "0.2.0",
     "description": "",
     "main": "./specular.js",
     "types": "./specular.d.ts",
+    "exports": {
+        ".": {
+            "types": "./specular.d.ts",
+            "default": "./specular.js"
+        },
+        "./configurator": {
+            "types": "./configurator/index.d.ts",
+            "default": "./configurator/index.js"
+        }
+    },
     "author": "bithavoc",
     "scripts": {
         "prepublishOnly": "npm run build-configurator",
         "generate": "specular-standalone-compiler generate",
-        "build-configurator": "tsc configurator/index.ts --declaration --module nodenext",
+        "build-configurator": "tsc",
         "build": "npm run build-configurator",
         "clean": "rm -rf node_modules && rm -f **/*.js **/*.d.ts"
     },
@@ -17,10 +27,11 @@
     "dependencies": {
         "@aws-crypto/sha256-js": "^5.2.0",
         "@aws-sdk/types": "^3.515.0",
-        "@deployport/specular-runtime": "^0.1.11"
+        "@deployport/specular-runtime": "^0.2.1"
     },
     "devDependencies": {
-        "@tsconfig/node18": "^18.2.2",
-        "@types/node": "^20.8.3"
+        "@tsconfig/node24": "^24.0.4",
+        "@types/node": "^24.13.2",
+        "typescript": "^6.0.3"
     }
 }
