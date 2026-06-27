@@ -15,6 +15,10 @@
         }
     },
     "author": "bithavoc",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/deployport/api-services-corelib-js.git"
+    },
     "scripts": {
         "prepublishOnly": "npm run build-configurator",
         "generate": "specular-standalone-compiler generate",
