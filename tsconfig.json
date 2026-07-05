@@ -4,5 +4,9 @@
         "declaration": true,
         "types": ["node"]
     },
-    "files": ["configurator/index.ts"]
+    "files": [
+        "configurator/index.ts",
+        "configurator/loader.node.ts",
+        "configurator/loader.browser.ts"
+    ]
 }

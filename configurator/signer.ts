@@ -1,61 +1,60 @@
 import { Sha256 } from '@aws-crypto/sha256-js';
 import { Runtime } from "@deployport/specular-runtime";
 import { SourceData } from "@aws-sdk/types";
-import { ServiceSignatureV1 } from '../specular.js';
+import { ServiceSignatureV1, SignedOperationV1 } from '../specular.js';
+import type { Config } from "./config.js";
 
 type Credentials = {
     keyID: string;
     secret: string;
 }
 
-export type Config = {
-    deployport?: {
-        region?: string;
-        accessKeyID?: string;
-        secretAccessKey?: string;
+const VendorCode = 'dpp';
+
+/**
+ * Replaces the `<region>` placeholder in the request URL and Host header with
+ * the given region. Mirrors Go's `ReplaceRegionInRequest`. Runs for every
+ * request that has a resolved region, whether or not the request is signed.
+ */
+export function replaceRegionInRequest(request: Runtime.HTTPRequest, region: string): void {
+    if (request.url) {
+        request.url = request.url.replaceAll("<region>", region);
+    }
+    const host = request.headers["Host"];
+    if (typeof host === "string") {
+        request.headers["Host"] = host.replaceAll("<region>", region);
     }
 }
 
-const VendorCode = 'dpp';
-
 export async function ConfigureSignatureV1(submission: Runtime.Submission, config: Config): Promise<void> {
-
-    // const { request } = submission;
-    // const { headers } = request;
-    // if (!headers["x-specular-signature"]) {
-    //     headers["x-specular-signature"] = "v1";
-    // }
-    console.log("Hello from ConfigureSignatureV1 in runtime/signer.ts!", submission)
+    // sign only operations that opted in via SignedOperationV1
+    const signedOperationV1 = submission.operation.annotations.find((a) => a instanceof SignedOperationV1);
+    if (!signedOperationV1) {
+        return;
+    }
     const annotations = submission.operation.resource.package.annotations;
-    console.log("service annotations", annotations);
     const serviceSignatureV1 = annotations.find((a) => a instanceof ServiceSignatureV1);
     if (!serviceSignatureV1) {
         return;
     }
-    console.log("signing using config", config)
     const { deployport } = config;
     if (!deployport) {
-        console.warn("missing required deployport configuration for signing", config);
         return;
     }
     const { region, accessKeyID: keyID, secretAccessKey: secret } = deployport;
     if (!region || !keyID || !secret) {
-        console.warn("missing required configuration for signing", deployport);
+        // Incomplete credentials/region: leave the request unsigned.
         return;
     }
     const { ServiceName: signingService } = serviceSignatureV1;
-    console.log("annotations", annotations, VendorCode, signingService);
     const { longDate, shortDate } = formatDate(new Date());
     const signingScope = buildSigningScope(VendorCode, region, signingService, shortDate);
-    console.log("signingScope", signingScope);
 
     const credentialPart = buildCredentialPart(keyID, signingScope);
-    console.log("credentialPart", credentialPart);
 
     const authHeaderPrefix = vendorAlgorithm(VendorCode) + " " + credentialPart
 
     const bodyDigest = toHex(await hashSHA256(submission.request.body));
-    console.log("bodyDigest", bodyDigest);
     const headers = submission.request.headers;
     headers[vendorDateHeaderKey(VendorCode)] = longDate;
     headers[vendorHeaderCanonicalNameKey(VendorCode, "Service")] = signingService;
@@ -63,7 +62,6 @@ export async function ConfigureSignatureV1(submission: Runtime.Submission, confi
     headers[vendorHeaderCanonicalNameKey(VendorCode, "Operation")] = submission.operation.name;
     headers[vendorRegionHeaderKey(VendorCode)] = region;
     headers[vendorHeaderCanonicalNameKey(VendorCode, "Content-Sha256")] = bodyDigest;
-    console.log("headers", headers);
     const canonicalHeaders = getCanonicalHeaders(VendorCode, headers);
 
     const credentials: Credentials = {
@@ -85,7 +83,6 @@ export async function ConfigureSignatureV1(submission: Runtime.Submission, confi
     );
 
     headers["Authorization"] = [authHeaderPrefix, `SignedHeaders=${canonicalHeaders.signedHeaders}`, `Signature=${signature}`] as any;
-    console.log("signed headers", headers);
 }
 
 function createCanonicalRequest(request: Runtime.HTTPRequest, canonicalHeaders: CanonicalHeaders, payloadHash: string): string {
@@ -104,7 +101,6 @@ function getCanonicalQuery({ path }: Runtime.HTTPRequest): string {
 }
 
 function getCanonicalPath({ path }: Runtime.HTTPRequest): string {
-    console.log("getCanonicalPath path", path);
     return path;
     // if (this.uriEscapePath) {
     // Non-S3 services, we normalize the path and then double URI encode it.
@@ -131,7 +127,6 @@ function getCanonicalPath({ path }: Runtime.HTTPRequest): string {
     // my-object//example//photo.user should not be normalized to
     // my-object/example/photo.user
 
-    console.log("getCanonicalPath path (curated)", path);
     return path;
 }
 
@@ -156,7 +151,6 @@ async function getSignature(
     canonicalRequest: string
 ): Promise<string> {
     const stringToSign = await createStringToSign(vendor, longDate, credentialScope, canonicalRequest);
-    console.log("stringToSign", stringToSign);
 
     const hash = new Sha256(await keyPromise);
     hash.update(stringToSign);
@@ -169,7 +163,6 @@ async function createStringToSign(
     credentialScope: string,
     canonicalRequest: string
 ): Promise<string> {
-    console.log('canonicalRequest', canonicalRequest);
     const hash = new Sha256();
     hash.update(canonicalRequest);
     const hashedRequest = await hash.digest();

@@ -1,6 +1,6 @@
 {
     "name": "@deployport/api-services-corelib",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "description": "",
     "main": "./specular.js",
     "types": "./specular.d.ts",
@@ -12,6 +12,17 @@
         "./configurator": {
             "types": "./configurator/index.d.ts",
             "default": "./configurator/index.js"
+        },
+        "./configurator/node": {
+            "types": "./configurator/loader.node.d.ts",
+            "default": "./configurator/loader.node.js"
+        }
+    },
+    "imports": {
+        "#config-loader": {
+            "browser": "./configurator/loader.browser.js",
+            "node": "./configurator/loader.node.js",
+            "default": "./configurator/loader.browser.js"
         }
     },
     "author": "bithavoc",
@@ -24,6 +35,7 @@
         "generate": "specular-standalone-compiler generate",
         "build-configurator": "tsc",
         "build": "npm run build-configurator",
+        "test": "vitest run",
         "clean": "rm -rf node_modules && rm -f **/*.js **/*.d.ts"
     },
     "type": "module",
@@ -31,11 +43,13 @@
     "dependencies": {
         "@aws-crypto/sha256-js": "^5.2.0",
         "@aws-sdk/types": "^3.515.0",
-        "@deployport/specular-runtime": "^0.2.1"
+        "@deployport/specular-runtime": "^0.2.1",
+        "yaml": "^2.6.1"
     },
     "devDependencies": {
         "@tsconfig/node24": "^24.0.4",
         "@types/node": "^24.13.2",
-        "typescript": "^6.0.3"
+        "typescript": "^6.0.3",
+        "vitest": "^3.0.0"
     }
 }
